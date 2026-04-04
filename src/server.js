@@ -3,18 +3,18 @@ const express = require('express');
  const { connectToDB } = require('./core/services/db-service');
 
 
-//db connection 
+//db connection
 connectToDB();
 
 
-//app 
+//app
 const app = express();
 
 
 //middlewares
 app.use(express.json());
 
- 
+
 //routes
 app.get('/', (_, res) => {
     res.send('Hello World!');
