@@ -1,15 +1,20 @@
 //imports
 const express = require('express');
+ const { connectToDB } = require('./core/services/db-service');
 
 
-//app
+//db connection 
+connectToDB();
+
+
+//app 
 const app = express();
 
 
 //middlewares
 app.use(express.json());
 
-
+ 
 //routes
 app.get('/', (_, res) => {
     res.send('Hello World!');
