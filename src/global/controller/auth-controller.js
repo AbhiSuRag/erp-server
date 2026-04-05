@@ -1,7 +1,7 @@
 //imports
 const { comparePassword } = require('../../core/services/password');
 const { generateToken } = require('../../core/services/token');
-const orgModel = require('../../module/organization/features/auth/models/org-model');
+const userModel = require('../models/user_model');
 const logger = require('../../core/services/logger');
 
 
@@ -16,28 +16,27 @@ async function login(req, res) {
     }
 
     // Find user by email
-    const org = await orgModel.findOne({ email });
+    const user = await userModel.findOne({ email });
 
     //check if user does not exists
-    if (!org) {
-      return res.status(404).json({ message: 'Organization not found' });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
 
     //match password
-    const isPasswordCorrect = await comparePassword(password, org.password);
-
+    const isPasswordCorrect = await comparePassword(password, user.password);
     // Check if password is correct
     if (!isPasswordCorrect) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
     // Generate JWT token
-    const token = await generateToken(org);
+    const token = await generateToken(user);
 
     // Return token and user info
     res.status(200).json({
       token,
-      org: org
+      user: user
     });
   } catch (error) {
     logger.error('Auth login error: ' + (error && error.message ? error.message : String(error)));
@@ -48,7 +47,7 @@ async function login(req, res) {
 //register
 async function register(req, res) {
   //get data from request body
-  const { name, email, password, ownBy, address, role, mode } = req.body;
+  const { name, email, password, orgId, address, role, mode } = req.body;
 
   try {
     // Validate input

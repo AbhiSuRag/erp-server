@@ -2,11 +2,10 @@ const jwt = require('jsonwebtoken');
 
 
 //generate JWT token
-function generateToken(org) {
+function generateToken(data) {
   const payload = {
-    id: org.id,
-    email: org.email,
-    orgName: org.name
+    id: data.id,
+    role: data.role
   };
 
   return jwt.sign(payload, process.env.JWT_SECRET);

@@ -1,12 +1,12 @@
 const mongoose = require("mongoose");
 
 //role enum
-const roleEnum = ['admin','faculty', 'staff' ,'student'];
-const modeEnum = ['online', 'offline', 'hybrid'];
+const roleEnum = ['superadmin','admin','faculty', 'staff' ,'student'];
+
 
 
 //user schema
-const orgSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true
@@ -20,26 +20,23 @@ const orgSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    ownBy: {
-        type: String,
+    orgId:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Organization',
         required: true
     },
-    address: {
+    orgName: {
         type: String,
         required: true
     },
     role: {
         type: String,
         enum: roleEnum,
-        default: 'user'
+        default: 'student'
     },
-    mode: {
-        type: String,
-        enum: modeEnum,
-        default: 'offline',
-    }
+
 }, { timestamps: true });
 
-const Organization = mongoose.model('Organization', orgSchema);
+const user = mongoose.model('Users', userSchema);
 
-module.exports = Organization;
+module.exports = user;
