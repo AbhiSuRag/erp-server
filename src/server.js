@@ -17,17 +17,30 @@ connectToDB();
 //app
 const app = express();
 
-//apply cors
-app.use(cors(
-    options = {
-        origin: {
-            '*': true,
-            'localhost:*': true,
-        }, // allow all origins for now; adjust in production
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'Authorization']
+
+//cors options
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true); // allow non-browser requests
+
+    // Allow localhost and any LAN IP like 192.168.x.x:3000
+    if (
+      origin.startsWith("http://localhost:*") ||
+      origin.startsWith("http://localhost:5000") ||
+      origin.startsWith("http://192.168.29.108:5000") ||
+      /^http:\/\/192\.168\.\d+\.\d+:3000$/.test(origin) ||
+      /^http:\/\/192\.168\.\d+\.\d+:3001$/.test(origin)
+    ) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS: " + origin));
     }
-));
+  },
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  credentials: true,
+};
+//apply cors
+app.use(cors(corsOptions));
 
 //middlewares
 app.use(express.json());

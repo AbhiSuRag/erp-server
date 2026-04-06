@@ -1,10 +1,14 @@
 const router = require('express').Router();
-const authFeature = require('./features/auth/routes/auth-route');
+const orgMiddleware = require('./middleware/org-middleware');
+const authRoute = require('./routes/auth-route');
+const orgRoute = require('./routes/org-route');
 
 
-//features
-router.use('/auth', authFeature);
+//orgs
+router.use('/', orgMiddleware.verifySuperAdmin, orgRoute);
 
+//auth
+router.use('/auth', authRoute);
 
 
 module.exports = router;

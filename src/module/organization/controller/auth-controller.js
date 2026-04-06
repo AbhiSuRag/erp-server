@@ -1,8 +1,8 @@
 //imports
-const { comparePassword } = require('../../core/services/password');
-const { generateToken } = require('../../core/services/token');
-const orgModel = require('../../module/organization/features/auth/models/org-model');
-const logger = require('../../core/services/logger');
+const passwordService = require('../../../core/services/password');
+const { generateToken } = require('../../../core/services/token');
+const orgModel = require('../models/organization-model');
+const logger = require('../../../core/services/logger');
 
 
 // login
@@ -16,7 +16,7 @@ async function login(req, res) {
     }
 
     // Find user by email
-    const org = await orgModel.findOne({ email });
+    const org = await orgModel.findOne({ email }).select("+password");
 
     //check if user does not exists
     if (!org) {
@@ -24,7 +24,7 @@ async function login(req, res) {
     }
 
     //match password
-    const isPasswordCorrect = await comparePassword(password, org.password);
+    const isPasswordCorrect =  passwordService.comparePassword(password, org.password);
 
     // Check if password is correct
     if (!isPasswordCorrect) {
@@ -40,7 +40,7 @@ async function login(req, res) {
       org: org
     });
   } catch (error) {
-    logger.error('Auth login error: ' + (error && error.message ? error.message : String(error)));
+    logger.error('org login error: ' + (error && error.message ? error.message : String(error)));
     res.status(500).json({ message: error.message });
   }
 }
@@ -62,11 +62,14 @@ async function register(req, res) {
       return res.status(409).json({ message: 'Organization already exists' });
     }
 
+    //hash password
+    const hashPassword = passwordService.hashPassword(password);
+
     // Create new user
     const newOrg = new orgModel({
       name,
       email,
-      password,
+      password : hashPassword,
       ownBy,
       address,
       role,
@@ -82,10 +85,10 @@ async function register(req, res) {
     // Return token and user info
     res.status(201).json({
       token,
-      org: newOrg
+      data: newOrg
     });
   } catch (error) {
-    logger.error('Auth register error: ' + (error && error.message ? error.message : String(error)));
+    logger.error('org register error: ' + (error && error.message ? error.message : String(error)));
     res.status(500).json({ message: error.message });
   }
 }
